@@ -6,6 +6,8 @@ let orderPayload = {
   orders: [{ country: 'Cuba', productOrderedId: '6960eac0c941646b7a8b3e68' }],
 }
 
+test.describe.configure({ mode: 'serial' })
+
 test.describe('smoke test', () => {
   let orderId
   test.beforeAll('Order setup', async ({ orderService, authToken }) => {
@@ -18,14 +20,6 @@ test.describe('smoke test', () => {
     expect(orderResponse).toBeDefined()
     expect(orderResponse._id).toBe(orderId)
   })
-
-  // test("de", async({orderService})=>{
-  //   let response = await orderService.deleteOrder(orderId);
-  //         await expect(response.status()).toBe(200)
-  // const stillExists = ordersAfterDelete.some(o => o._id === orderId || o.id === orderId);
-  //     expect(stillExists).toBeFalsy();
-
-  // })
 
   test('Verify Order in UI', async ({ page, authToken }) => {
     await page.addInitScript(
@@ -40,7 +34,6 @@ test.describe('smoke test', () => {
     )
     let heading = page.getByRole('heading', { name: 'Your Orders' })
     await heading.waitFor({ state: 'visible', timeout: 60000 })
-    // // Verify order ID is displayed on the UI (you can adapt this based on UI)
     let row = page.locator('table tbody tr')
     let uiOrderId
     let rowCount = await row.count()
@@ -64,5 +57,16 @@ test.describe('smoke test', () => {
     let response = await orderService.getAllOrders()
     let found = response.some((el) => el._id === orderId)
     expect(found).toBeTruthy()
+  })
+
+  test('de', async ({ orderService }) => {
+    let response = await orderService.deleteOrder(orderId)
+    await expect(response.status()).toBe(200)
+    const ordersAfterDelete = await orderService.getAllOrders()
+
+    const stillExists = ordersAfterDelete.some(
+      (o) => o._id === orderId || o.id === orderId,
+    )
+    expect(stillExists).toBeFalsy()
   })
 })

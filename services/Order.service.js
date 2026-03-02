@@ -1,84 +1,80 @@
+import { expect, request } from '@playwright/test'
+export class Order {
+  constructor(apiContext, token, userId) {
+    this.apiContext = apiContext
+    this.token = token
+    this.userId = userId
+    this.baseURL = 'https://rahulshettyacademy.com/'
+  }
+  
+  async createOrder(orderPayload) {
+    const res = await this.apiContext.post('api/ecom/order/create-order', {
+      data: orderPayload,
+      headers: {
+        Authorization: this.token, // Ensure "Bearer " prefix
+        'Content-Type': 'application/json',
+      },
+    })
 
-import{expect, request} from "@playwright/test"
-export class Order{
-    constructor(apiContext,token){
-      this.apiContext = apiContext;
-        this.token= token;
-        this.baseURL= 'https://rahulshettyacademy.com/'
-    }
-//     async createContext() {
-//         console.log("Token being passed:", this.token);  
-//   // Always use fresh token from fixture
-//   // return await this.request.newContext({
-//   //   baseURL: this.baseURL,
-//   //   extraHTTPHeaders: {
-//   //     Authorization: `Bearer ${this.token}`,
-//   //     "Content-Type": "application/json",
-//   //   },
-//   });
-// }
-async createOrder(orderPayload) {
-  //const apiContext = await this.createContext();
-  const res = await this.apiContext.post("api/ecom/order/create-order", {
-    data: orderPayload,
-    headers:{
-      Authorization:this.token,
-      "Content-Type": "application/json",
-    }
-  });
-if (!res.ok()) {
-      const error = await res.json();
-      console.error("Create order failed:", error.message);  // Log error message
+    const data = await res.json()
+
+    if (!res.ok()) {
+      console.error('Create order failed:', data.message)
       if (res.status() === 401) {
-        // Handle token expiration
-        throw new Error("Session expired. Please log in again.");
+        throw new Error('Session expired. Please log in again.')
       }
-      throw new Error("Create order failed: " + error);  // Throw error to stop the test
+      throw new Error(`${data.message}`)
     }
-  await expect(res.ok()).toBeTruthy();
-  const data = await res.json();
-  await this.apiContext.dispose();
-  return data.orders[0];
-}
 
-   
- async deleteOrder(id){
-        let res= await this.apiContext.delete(`api/ecom/order/delete-order/${id}`,{
-          headers:{
-      Authorization:this.token,
-      "Content-Type": "application/json",
-    }
-        });
-        await expect(res.status()).toBe(200)
-        await this.apiContext.dispose();
-        return res
-       }
+    await expect(res.ok()).toBeTruthy()
 
-       async getOrderById(id,page){
-      let res = await this.apiContext.get(`api/ecom/order/get-orders-details?id=${id}`,{
-        headers:{
-      Authorization:this.token,
-      "Content-Type": "application/json",
-    }
-      });
-      let data = await res.json();
-        await expect(res.status()).toBe(200)
-      await this.apiContext.dispose();
-         return data.data;
-       }
-       
-       async getAllOrders(){
-      let res = await this.apiContext.get(`api/ecom/order/get-orders-for-customer`,{
-        headers:{
-      Authorization:this.token,
-      "Content-Type": "application/json",
-    }
-      });
-      await expect(res.status()).toBe(200)
-      let data = await res.json();
-      //await this.apiContext.dispose();
-         return data.data;
-       }
+    return data.orders[0]
+  }
+  async deleteOrder(id) {
+    let res = await this.apiContext.delete(
+      `api/ecom/order/delete-order/${id}`,
+      {
+        headers: {
+          Authorization: this.token,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    await expect(res.status()).toBe(200)
 
-       
+    return res
+  }
+
+  async getOrderById(id, page) {
+    let res = await this.apiContext.get(
+      `api/ecom/order/get-orders-details?id=${id}`,
+      {
+        headers: {
+          Authorization: this.token,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    let data = await res.json()
+    await expect(res.status()).toBe(200)
+
+    return data.data
+  }
+
+  async getAllOrders() {
+    const res = await this.apiContext.get(
+      `api/ecom/order/get-orders-for-customer/${this.userId}`,
+      {
+        headers: {
+          Authorization: this.token, // Correct format
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+
+    await expect(res.status()).toBe(200) // assertion stays
+
+    const data = await res.json()
+    return data.data
+  }
 }
