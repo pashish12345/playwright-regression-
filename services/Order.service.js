@@ -11,7 +11,7 @@ export class Order {
     const res = await this.apiContext.post('api/ecom/order/create-order', {
       data: orderPayload,
       headers: {
-        Authorization: this.token, // Ensure "Bearer " prefix
+        Authorization: this.token, //raw token
         'Content-Type': 'application/json',
       },
     })
@@ -45,7 +45,7 @@ export class Order {
     return res
   }
 
-  async getOrderById(id, page) {
+  async getOrderById(id) {
     let res = await this.apiContext.get(
       `api/ecom/order/get-orders-details?id=${id}`,
       {

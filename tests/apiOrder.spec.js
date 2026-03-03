@@ -1,6 +1,6 @@
-import { test } from '../fixture/auth.fixture' // Use the custom test with extended fixtures
-import { expect } from 'playwright/test' // Importing Playwright's expect method
-import { Order } from '../services/Order.service' // Import the Order service
+import { test } from '../fixture/auth.fixture' 
+import { expect } from 'playwright/test' 
+import { Order } from '../services/Order.service' 
 
 let orderPayload = {
   orders: [{ country: 'Cuba', productOrderedId: '6960eac0c941646b7a8b3e68' }],
@@ -10,13 +10,13 @@ test.describe.configure({ mode: 'serial' })
 
 test.describe('smoke test', () => {
   let orderId
-  test.beforeAll('Order setup', async ({ orderService, authToken }) => {
+  test.beforeAll('Order setup', async ({ orderService }) => {
     const orderResponse = await orderService.createOrder(orderPayload)
     orderId = orderResponse
   })
 
-  test('Read ', async ({ page, orderService }) => {
-    let orderResponse = await orderService.getOrderById(orderId, page)
+  test('Read ', async ({  orderService }) => {
+    let orderResponse = await orderService.getOrderById(orderId)
     expect(orderResponse).toBeDefined()
     expect(orderResponse._id).toBe(orderId)
   })
@@ -59,7 +59,7 @@ test.describe('smoke test', () => {
     expect(found).toBeTruthy()
   })
 
-  test('de', async ({ orderService }) => {
+  test('del', async ({ orderService }) => {
     let response = await orderService.deleteOrder(orderId)
     await expect(response.status()).toBe(200)
     const ordersAfterDelete = await orderService.getAllOrders()
