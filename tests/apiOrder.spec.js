@@ -5,9 +5,7 @@ import { Order } from '../services/Order.service'
 let orderPayload = {
   orders: [{ country: 'Cuba', productOrderedId: '6960eac0c941646b7a8b3e68' }],
 }
-
 test.describe.configure({ mode: 'serial' })
-
 test.describe('smoke test', () => {
   let orderId
   test.beforeAll('Order setup', async ({ orderService }) => {
