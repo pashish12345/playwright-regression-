@@ -30,6 +30,7 @@ test.describe('smoke test', () => {
         waitUntil: 'domcontentloaded',
       },
     )
+
     let heading = page.getByRole('heading', { name: 'Your Orders' })
     await heading.waitFor({ state: 'visible', timeout: 60000 })
     let row = page.locator('table tbody tr')
